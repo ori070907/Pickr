@@ -1,6 +1,3 @@
-App · HTML
-Copy
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -318,6 +315,82 @@ Copy
     }
     .reset-btn:hover { border-color: var(--ink-soft); color: var(--ink-soft); }
  
+    /* Soft email gate — appears after first verdict */
+    .soft-gate {
+      margin-top: 1rem;
+      padding: 1.1rem 1.25rem;
+      background: linear-gradient(135deg, #fef7f1 0%, #fbeee2 100%);
+      border: 1px solid #f4c4a8;
+      border-radius: 14px;
+      animation: rise 0.4s ease 0.6s both;
+    }
+    .soft-gate-title {
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: 19px;
+      color: var(--ink);
+      margin-bottom: 4px;
+      line-height: 1.2;
+    }
+    .soft-gate-title em {
+      color: var(--terracotta);
+      font-style: italic;
+    }
+    .soft-gate-text {
+      font-size: 13px;
+      color: var(--ink-soft);
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+    .soft-gate-text strong {
+      color: var(--terracotta-deep);
+      font-weight: 600;
+    }
+    .soft-gate-form {
+      display: flex;
+      gap: 6px;
+    }
+    .soft-gate-input {
+      flex: 1;
+      border: 1px solid #f4c4a8;
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .soft-gate-input:focus { border-color: var(--terracotta); }
+    .soft-gate-input::placeholder { color: #c0a99a; }
+    .soft-gate-submit {
+      background: var(--ink);
+      color: var(--cream);
+      border: none;
+      border-radius: 8px;
+      padding: 9px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .soft-gate-submit:hover { background: #2e2e2a; }
+    .soft-gate-submit:disabled { background: #ccc; cursor: not-allowed; }
+    .soft-gate-success {
+      display: none;
+      padding: 10px 14px;
+      background: #e8f0d8;
+      color: #3b6d11;
+      border-radius: 8px;
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: 16px;
+      text-align: center;
+    }
+ 
     .paywall-overlay {
       display: none; position: fixed; inset: 0;
       background: rgba(26, 26, 24, 0.6);
@@ -461,6 +534,19 @@ Copy
         <div class="tips-label">Styling tips</div>
         <div id="tips-list"></div>
       </div>
+ 
+      <div class="soft-gate" id="soft-gate" style="display: none;">
+        <div class="soft-gate-title">Loved your <em>verdict</em>?</div>
+        <p class="soft-gate-text">Drop your email and get <strong>100 free picks</strong> + save your outfit history. (No subscription, no spam.)</p>
+        <form class="soft-gate-form" id="soft-gate-form" onsubmit="submitSoftGate(event)">
+          <input type="email" class="soft-gate-input" id="soft-gate-email" placeholder="your@email.com" required />
+          <button type="submit" class="soft-gate-submit" id="soft-gate-submit">Get 100 picks →</button>
+        </form>
+        <div class="soft-gate-success" id="soft-gate-success">
+          ✓ Saved! Check your email soon.
+        </div>
+      </div>
+ 
       <button class="reset-btn" onclick="resetAll()">Start over</button>
     </div>
   </div>
@@ -551,7 +637,7 @@ Copy
     // ============================================
     // PASTE YOUR FORMSPREE URL HERE ⬇️
     // ============================================
-    const FORMSPREE_URL = 'https://formspree.io/f/mykoybla';
+    const FORMSPREE_URL = 'https://formspree.io/f/YOUR_FORM_ID_HERE';
     // ============================================
  
     async function submitWaitlist(e) {
@@ -587,6 +673,50 @@ Copy
         submitBtn.innerHTML = 'Try again →';
         alert('Sorry, something went wrong. Please try again.');
       }
+    }
+ 
+    // Soft gate after first verdict
+    async function submitSoftGate(e) {
+      e.preventDefault();
+      const email = document.getElementById('soft-gate-email').value;
+      const submitBtn = document.getElementById('soft-gate-submit');
+ 
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = 'Saving <span class="loading-dot">...</span>';
+ 
+      try {
+        const res = await fetch(FORMSPREE_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            email: email,
+            source: 'pickr_soft_gate',
+            timestamp: new Date().toISOString()
+          })
+        });
+ 
+        if (res.ok) {
+          document.getElementById('soft-gate-form').style.display = 'none';
+          document.getElementById('soft-gate-success').style.display = 'block';
+          // Mark as captured so we don't show again this session
+          localStorage.setItem('pickr_email_captured', 'true');
+        } else {
+          throw new Error('Could not save email');
+        }
+      } catch (err) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Get 100 picks →';
+        alert('Sorry, something went wrong. Please try again.');
+      }
+    }
+ 
+    function shouldShowSoftGate() {
+      // Don't show if already captured
+      if (localStorage.getItem('pickr_email_captured') === 'true') return false;
+      return true;
     }
  
     updatePicksBadge();
@@ -772,6 +902,14 @@ Copy
         ).join('');
  
         document.getElementById('result-card').style.display = 'block';
+ 
+        // Show soft email gate after first verdict (if not already captured)
+        if (shouldShowSoftGate()) {
+          document.getElementById('soft-gate').style.display = 'block';
+        } else {
+          document.getElementById('soft-gate').style.display = 'none';
+        }
+ 
         incrementPicks();
  
       } catch (err) {
