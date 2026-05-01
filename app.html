@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pickr — your fit decision, made simple</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #f6f4ef;
+      --cream-deep: #efebe2;
+      --terracotta: #d97757;
+      --terracotta-deep: #c25f3f;
+      --ink: #1a1a18;
+      --ink-soft: #555;
+      --muted: #888;
+      --border: #e8e4d6;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      background: rgba(246, 244, 239, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 0.5px solid rgba(0,0,0,0.06);
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .topbar-logo {
+      font-family: 'Instrument Serif', serif;
+      font-size: 26px; letter-spacing: -0.5px;
+      color: var(--ink); text-decoration: none;
+      display: flex; align-items: baseline; gap: 4px;
+    }
+    .topbar-logo .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--terracotta); }
+    .picks-badge {
+      background: rgba(217, 119, 87, 0.1);
+      color: var(--terracotta-deep);
+      padding: 6px 12px; border-radius: 100px;
+      font-size: 12px; font-weight: 500;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .upgrade-btn {
+      background: var(--ink); color: var(--cream);
+      border: none; padding: 8px 16px;
+      border-radius: 8px; font-size: 13px;
+      font-weight: 500; cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      text-decoration: none;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .upgrade-btn:hover { background: #2e2e2a; }
+
+    .app-container {
+      max-width: 480px; margin: 0 auto;
+      padding: 1.5rem 1.25rem 3rem;
+    }
+
+    .mode-tabs {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 6px; background: var(--cream-deep);
+      padding: 4px; border-radius: 12px;
+      margin-bottom: 1.5rem;
+    }
+    .mode-tab {
+      background: transparent; border: none; border-radius: 9px;
+      padding: 12px 8px; font-family: 'Inter', sans-serif;
+      font-size: 13px; font-weight: 500; color: var(--muted);
+      cursor: pointer; transition: background 0.2s, color 0.2s;
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+    }
+    .mode-tab.active {
+      background: #fff; color: var(--ink);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .mode-tab .mt-icon { font-size: 16px; }
+    .mode-tab .mt-sub { font-size: 10px; color: var(--muted); font-weight: 400; }
+    .mode-tab.active .mt-sub { color: var(--ink-soft); }
+
+    .section-label {
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 1.5px; color: var(--muted);
+      text-transform: uppercase; margin-bottom: 10px;
+    }
+
+    /* Upload zone with camera + upload buttons */
+    .upload-zone {
+      border: 1.5px dashed #d8d3c5;
+      border-radius: 12px;
+      background: var(--cream-deep);
+      transition: border-color 0.2s, background 0.2s;
+      min-height: 180px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+      padding: 1rem;
+      position: relative;
+    }
+    .upload-empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 150px;
+    }
+    .upload-icon-wrap { font-size: 30px; }
+    .upload-label { font-size: 14px; font-weight: 500; color: var(--ink-soft); }
+    .upload-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .upload-btn {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink);
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .upload-btn:hover {
+      border-color: var(--terracotta);
+      background: #fef7f1;
+    }
+
+    #file-input-single, #camera-input-single { display: none; }
+
+    #preview-single {
+      width: 100%; max-height: 240px;
+      object-fit: cover; border-radius: 10px;
+      display: none;
+    }
+
+    /* Compare slots with camera + upload */
+    .compare-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 8px; margin-bottom: 1.5rem;
+    }
+    .compare-slot {
+      aspect-ratio: 1 / 1.1;
+      border: 1.5px dashed #d8d3c5;
+      border-radius: 12px; background: var(--cream-deep);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 6px;
+      overflow: hidden; position: relative;
+      transition: border-color 0.2s, background 0.2s;
+      padding: 8px;
+    }
+    .compare-slot:hover { border-color: var(--terracotta); background: #f5ede4; }
+    .compare-slot.filled { border-style: solid; border-color: var(--border); padding: 0; }
+    .compare-slot img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+    .compare-slot-num {
+      position: absolute; top: 6px; left: 6px;
+      background: rgba(255,255,255,0.95);
+      width: 24px; height: 24px; border-radius: 50%;
+      font-size: 11px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--ink-soft); z-index: 2;
+    }
+    .compare-slot-icon { font-size: 22px; color: #aaa; }
+    .compare-slot-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+    .compare-mini-buttons {
+      display: flex;
+      gap: 4px;
+      margin-top: 4px;
+    }
+    .compare-mini-btn {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--ink);
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .compare-mini-btn:hover {
+      border-color: var(--terracotta);
+      background: #fef7f1;
+    }
+
+    .winner-badge {
+      position: absolute; top: 6px; right: 6px;
+      background: var(--terracotta); color: #fff;
+      font-size: 9px; font-weight: 600;
+      padding: 4px 8px; border-radius: 6px;
+      letter-spacing: 0.5px; z-index: 3; display: none;
+      text-transform: uppercase;
+    }
+    .compare-slot.winner .winner-badge { display: block; }
+    .compare-slot.winner { box-shadow: 0 0 0 2px var(--terracotta); }
+
+    .occasions {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 6px; margin-bottom: 1.25rem;
+    }
+    .occ-btn {
+      border: 1px solid var(--border); border-radius: 9px;
+      background: #fff; padding: 10px 4px;
+      cursor: pointer; text-align: center;
+      transition: border-color 0.15s, background 0.15s;
+      font-family: 'Inter', sans-serif;
+    }
+    .occ-btn:hover { border-color: var(--terracotta); background: #fef7f1; }
+    .occ-btn.selected {
+      border-color: var(--terracotta);
+      background: #fef7f1;
+      box-shadow: 0 0 0 2px rgba(217, 119, 87, 0.2);
+    }
+    .occ-icon { font-size: 18px; display: block; margin-bottom: 3px; }
+    .occ-name { font-size: 11px; color: var(--ink-soft); font-weight: 500; }
+
+    .ask-input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 9px; background: #fff;
+      padding: 11px 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px; color: var(--ink);
+      margin-bottom: 1.25rem; outline: none;
+      transition: border-color 0.15s;
+    }
+    .ask-input:focus { border-color: var(--terracotta); }
+    .ask-input::placeholder { color: #bbb; }
+
+    .cta-btn {
+      width: 100%; background: var(--ink); color: var(--cream);
+      border: none; border-radius: 12px;
+      font-family: 'Instrument Serif', serif;
+      font-size: 20px; font-weight: 400;
+      padding: 16px; cursor: pointer;
+      letter-spacing: 0.3px; font-style: italic;
+      transition: background 0.15s;
+    }
+    .cta-btn:hover { background: #2e2e2a; }
+    .cta-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+    .result-card {
+      display: none;
+      margin-top: 1.5rem;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      animation: rise 0.4s ease;
+    }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .verdict-bar {
+      padding: 14px 18px;
+      font-family: 'Instrument Serif', serif;
+      font-size: 19px; font-weight: 400;
+      font-style: italic;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .verdict-bar.yes { background: #e8f0d8; color: #3b6d11; }
+    .verdict-bar.no  { background: #fbe5e2; color: #a32d2d; }
+    .verdict-bar.maybe { background: #fbe9d3; color: #854f0b; }
+    .verdict-bar.winner { background: var(--cream-deep); color: var(--ink); }
+    .result-body { background: #fff; padding: 1.1rem 1.25rem; }
+    .result-reason { font-size: 14px; line-height: 1.65; color: var(--ink-soft); margin-bottom: 1rem; }
+    .tips-label {
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 1.2px; color: var(--muted);
+      text-transform: uppercase; margin-bottom: 8px;
+    }
+    .tip-item {
+      font-size: 13px; color: var(--ink-soft);
+      padding: 8px 0;
+      border-top: 0.5px solid #f0ece5;
+      display: flex; gap: 8px; align-items: flex-start;
+      line-height: 1.55;
+    }
+    .tip-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--terracotta); flex-shrink: 0; margin-top: 6px;
+    }
+    .reset-btn {
+      margin-top: 1rem; width: 100%;
+      background: transparent; border: 0.5px solid #ddd;
+      border-radius: 8px; color: var(--muted);
+      font-size: 12px; padding: 10px;
+      cursor: pointer; font-family: 'Inter', sans-serif;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .reset-btn:hover { border-color: var(--ink-soft); color: var(--ink-soft); }
+
+    .paywall-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(26, 26, 24, 0.6);
+      backdrop-filter: blur(4px); z-index: 200;
+      justify-content: center; align-items: center;
+      padding: 1.5rem; animation: fadein 0.2s;
+    }
+    .paywall-overlay.active { display: flex; }
+    @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+    .paywall-card {
+      background: var(--cream); border-radius: 20px;
+      padding: 2rem 1.75rem; max-width: 380px; width: 100%;
+      text-align: center; animation: scalein 0.3s ease;
+    }
+    @keyframes scalein {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .paywall-icon { font-size: 40px; margin-bottom: 1rem; }
+    .paywall-title {
+      font-family: 'Instrument Serif', serif;
+      font-size: 28px; line-height: 1.1; margin-bottom: 0.5rem;
+    }
+    .paywall-title em { font-style: italic; color: var(--terracotta); }
+    .paywall-text {
+      font-size: 14px; color: var(--ink-soft);
+      margin-bottom: 1.5rem; line-height: 1.55;
+    }
+    .paywall-price {
+      font-family: 'Instrument Serif', serif;
+      font-size: 32px; margin-bottom: 0.25rem;
+    }
+    .paywall-price small {
+      font-family: 'Inter', sans-serif; font-size: 13px;
+      color: var(--muted); font-weight: 400;
+    }
+    .paywall-features {
+      list-style: none; text-align: left;
+      margin: 1.5rem 0; padding: 1rem 0;
+      border-top: 0.5px solid var(--border);
+      border-bottom: 0.5px solid var(--border);
+    }
+    .paywall-features li {
+      padding: 5px 0; font-size: 13px;
+      color: var(--ink-soft);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .paywall-features li::before {
+      content: '✓'; color: var(--terracotta); font-weight: 600;
+    }
+    .paywall-cta {
+      width: 100%; background: var(--ink); color: var(--cream);
+      border: none; padding: 14px; border-radius: 10px;
+      font-family: 'Instrument Serif', serif;
+      font-size: 17px; font-style: italic;
+      cursor: pointer; margin-bottom: 8px;
+      transition: background 0.15s;
+    }
+    .paywall-cta:hover { background: #2e2e2a; }
+    .paywall-close {
+      width: 100%; background: transparent; border: none;
+      color: var(--muted); font-size: 12px;
+      cursor: pointer; padding: 8px;
+      font-family: 'Inter', sans-serif;
+    }
+    .paywall-close:hover { color: var(--ink-soft); }
+
+    .loading-dot { animation: blink 1s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <a href="index.html" class="topbar-logo">Pickr<span class="dot"></span></a>
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <span class="picks-badge" id="picks-badge">3 free picks left</span>
+      <button class="upgrade-btn" onclick="showPaywall()">Pro</button>
+    </div>
+  </div>
+
+  <div class="app-container">
+    <div class="mode-tabs">
+      <button class="mode-tab active" id="tab-single" onclick="switchMode('single')">
+        <span class="mt-icon">👗</span>
+        <span>Should I wear this?</span>
+        <span class="mt-sub">single outfit check</span>
+      </button>
+      <button class="mode-tab" id="tab-compare" onclick="switchMode('compare')">
+        <span class="mt-icon">⚖️</span>
+        <span>Pick my best fit</span>
+        <span class="mt-sub">compare 2–4 outfits</span>
+      </button>
+    </div>
+
+    <div id="mode-single">
+      <div class="section-label">Your outfit</div>
+      <div class="upload-zone">
+        <input type="file" id="file-input-single" accept="image/*" onchange="handleSingle(event)" />
+        <input type="file" id="camera-input-single" accept="image/*" capture="environment" onchange="handleSingle(event)" />
+        <div id="single-placeholder" class="upload-empty">
+          <div class="upload-icon-wrap">👔</div>
+          <div class="upload-label">Add your outfit photo</div>
+          <div class="upload-buttons">
+            <button class="upload-btn" onclick="document.getElementById('camera-input-single').click()">📷 Take photo</button>
+            <button class="upload-btn" onclick="document.getElementById('file-input-single').click()">📁 Upload</button>
+          </div>
+        </div>
+        <img id="preview-single" />
+      </div>
+    </div>
+
+    <div id="mode-compare" class="hidden">
+      <div class="section-label">Your options (add 2–4)</div>
+      <div class="compare-grid" id="compare-grid"></div>
+    </div>
+
+    <div class="section-label">Where are you going?</div>
+    <div class="occasions">
+      <button class="occ-btn" onclick="selectOcc(this, 'Party')"><span class="occ-icon">🎉</span><span class="occ-name">Party</span></button>
+      <button class="occ-btn" onclick="selectOcc(this, 'Dinner')"><span class="occ-icon">🍽️</span><span class="occ-name">Dinner</span></button>
+      <button class="occ-btn" onclick="selectOcc(this, 'Mall')"><span class="occ-icon">🛍️</span><span class="occ-name">Mall</span></button>
+      <button class="occ-btn" onclick="selectOcc(this, 'Work')"><span class="occ-icon">💼</span><span class="occ-name">Work</span></button>
+      <button class="occ-btn" onclick="selectOcc(this, 'Date')"><span class="occ-icon">💕</span><span class="occ-name">Date</span></button>
+      <button class="occ-btn" onclick="selectOcc(this, 'Gym')"><span class="occ-icon">🏋️</span><span class="occ-name">Gym</span></button>
+      <button class="occ-btn" onclick="selectOcc(this, 'Wedding')"><span class="occ-icon">💍</span><span class="occ-name">Wedding</span></button>
+      <button class="occ-btn" onclick="selectOcc(this, 'Beach')"><span class="occ-icon">🏖️</span><span class="occ-name">Beach</span></button>
+      <button class="occ-btn" onclick="selectOcc(this, 'Casual day')"><span class="occ-icon">☕</span><span class="occ-name">Casual</span></button>
+    </div>
+
+    <input class="ask-input" id="extra-input" placeholder="Anything else? (cold weather, vibe, etc.)" />
+
+    <button class="cta-btn" id="go-btn" onclick="getAdvice()" disabled>Pick for me</button>
+
+    <div class="result-card" id="result-card">
+      <div class="verdict-bar" id="verdict-bar"></div>
+      <div class="result-body">
+        <div class="result-reason" id="result-reason"></div>
+        <div class="tips-label">Styling tips</div>
+        <div id="tips-list"></div>
+      </div>
+      <button class="reset-btn" onclick="resetAll()">Start over</button>
+    </div>
+  </div>
+
+  <div class="paywall-overlay" id="paywall-overlay">
+    <div class="paywall-card">
+      <div class="paywall-icon">✨</div>
+      <h3 class="paywall-title">Pickr Pro is <em>almost here</em></h3>
+      <p class="paywall-text">Get unlimited picks, save your outfits, and detailed styling tips for $2.99/month. Drop your email — we'll send you <strong>50% off your first month</strong> when Pro launches.</p>
+
+      <ul class="paywall-features">
+        <li>Unlimited picks every day</li>
+        <li>Compare up to 4 outfits</li>
+        <li>Save your outfit history</li>
+        <li>Detailed styling tips</li>
+        <li>Cancel anytime</li>
+      </ul>
+
+      <form id="waitlist-form" onsubmit="submitWaitlist(event)" style="display: flex; flex-direction: column; gap: 8px;">
+        <input
+          type="email"
+          id="waitlist-email"
+          class="ask-input"
+          placeholder="your@email.com"
+          required
+          style="margin-bottom: 0; text-align: center;"
+        />
+        <button type="submit" class="paywall-cta" id="waitlist-submit">Get 50% off Pro →</button>
+      </form>
+
+      <div id="waitlist-success" style="display:none; padding: 14px; background: #e8f0d8; color: #3b6d11; border-radius: 10px; font-family: 'Instrument Serif', serif; font-style: italic; font-size: 17px;">
+        ✓ You're on the list! We'll be in touch soon.
+      </div>
+
+      <button class="paywall-close" onclick="hidePaywall()">Maybe later</button>
+    </div>
+  </div>
+
+  <script>
+    // Free pick tracking
+    const FREE_LIMIT = 3;
+    const STORAGE_KEY = 'pickr_picks';
+
+    function getPicksThisWeek() {
+      try {
+        const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        const now = new Date();
+        const weekStart = new Date(now);
+        weekStart.setDate(now.getDate() - now.getDay());
+        weekStart.setHours(0, 0, 0, 0);
+        if (!stored.weekStart || new Date(stored.weekStart) < weekStart) {
+          return { count: 0, weekStart: weekStart.toISOString() };
+        }
+        return stored;
+      } catch (e) {
+        return { count: 0, weekStart: new Date().toISOString() };
+      }
+    }
+
+    function incrementPicks() {
+      const data = getPicksThisWeek();
+      data.count++;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      updatePicksBadge();
+    }
+
+    function updatePicksBadge() {
+      const data = getPicksThisWeek();
+      const remaining = Math.max(0, FREE_LIMIT - data.count);
+      const badge = document.getElementById('picks-badge');
+      if (remaining === 0) {
+        badge.textContent = '0 picks left';
+        badge.style.background = '#fbe5e2';
+        badge.style.color = '#a32d2d';
+      } else if (remaining === 1) {
+        badge.textContent = '1 pick left this week';
+      } else {
+        badge.textContent = remaining + ' free picks left';
+      }
+    }
+
+    function canMakeRequest() {
+      const data = getPicksThisWeek();
+      return data.count < FREE_LIMIT;
+    }
+
+    function showPaywall() { document.getElementById('paywall-overlay').classList.add('active'); }
+    function hidePaywall() { document.getElementById('paywall-overlay').classList.remove('active'); }
+
+    // ============================================
+    // PASTE YOUR FORMSPREE URL HERE ⬇️
+    // ============================================
+    const FORMSPREE_URL = 'https://formspree.io/f/YOUR_FORM_ID_HERE';
+    // ============================================
+
+    async function submitWaitlist(e) {
+      e.preventDefault();
+      const email = document.getElementById('waitlist-email').value;
+      const submitBtn = document.getElementById('waitlist-submit');
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = 'Adding you <span class="loading-dot">...</span>';
+
+      try {
+        const res = await fetch(FORMSPREE_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            email: email,
+            source: 'pickr_paywall',
+            timestamp: new Date().toISOString()
+          })
+        });
+
+        if (res.ok) {
+          document.getElementById('waitlist-form').style.display = 'none';
+          document.getElementById('waitlist-success').style.display = 'block';
+        } else {
+          throw new Error('Could not save email');
+        }
+      } catch (err) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Try again →';
+        alert('Sorry, something went wrong. Please try again.');
+      }
+    }
+
+    updatePicksBadge();
+
+    // App state
+    let mode = 'single';
+    let singleImg = null;
+    let compareImgs = [null, null, null, null];
+    let selectedOcc = null;
+
+    // Render compare grid (with camera + upload buttons)
+    function renderCompareGrid() {
+      const grid = document.getElementById('compare-grid');
+      grid.innerHTML = '';
+      [0, 1, 2, 3].forEach(i => {
+        const slot = document.createElement('div');
+        slot.className = 'compare-slot';
+        slot.id = 'slot-' + i;
+        if (compareImgs[i]) {
+          slot.classList.add('filled');
+          slot.innerHTML = `
+            <span class="compare-slot-num">${i+1}</span>
+            <span class="winner-badge">★ pick</span>
+            <img src="${compareImgs[i]}" />
+          `;
+          slot.onclick = () => {
+            // Tap to replace - show buttons
+            if (confirm('Replace this outfit?')) {
+              compareImgs[i] = null;
+              renderCompareGrid();
+              checkReady();
+            }
+          };
+        } else {
+          const optLabel = i < 2 ? 'Add outfit' : 'Optional';
+          slot.innerHTML = `
+            <span class="compare-slot-num">${i+1}</span>
+            <span class="winner-badge">★ pick</span>
+            <span class="compare-slot-icon">+</span>
+            <span class="compare-slot-label">${optLabel}</span>
+            <div class="compare-mini-buttons">
+              <button class="compare-mini-btn" onclick="event.stopPropagation(); openCameraCompare(${i})">📷</button>
+              <button class="compare-mini-btn" onclick="event.stopPropagation(); openFileCompare(${i})">📁</button>
+            </div>
+          `;
+        }
+        grid.appendChild(slot);
+      });
+    }
+
+    function openCameraCompare(idx) {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.capture = 'environment';
+      input.onchange = (e) => handleCompare(e, idx);
+      input.click();
+    }
+
+    function openFileCompare(idx) {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = (e) => handleCompare(e, idx);
+      input.click();
+    }
+
+    function switchMode(m) {
+      mode = m;
+      document.getElementById('tab-single').classList.toggle('active', m === 'single');
+      document.getElementById('tab-compare').classList.toggle('active', m === 'compare');
+      document.getElementById('mode-single').classList.toggle('hidden', m !== 'single');
+      document.getElementById('mode-compare').classList.toggle('hidden', m !== 'compare');
+      document.getElementById('go-btn').textContent = 'Pick for me';
+      document.getElementById('result-card').style.display = 'none';
+      clearWinners();
+      checkReady();
+    }
+
+    function handleSingle(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        singleImg = ev.target.result;
+        const img = document.getElementById('preview-single');
+        img.src = singleImg;
+        img.style.display = 'block';
+        document.getElementById('single-placeholder').style.display = 'none';
+        checkReady();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handleCompare(e, idx) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        compareImgs[idx] = ev.target.result;
+        renderCompareGrid();
+        checkReady();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function selectOcc(el, occ) {
+      document.querySelectorAll('.occ-btn').forEach(b => b.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedOcc = occ;
+      checkReady();
+    }
+
+    function checkReady() {
+      let ready = false;
+      if (mode === 'single') ready = singleImg && selectedOcc;
+      else ready = compareImgs.filter(x => x).length >= 2 && selectedOcc;
+      document.getElementById('go-btn').disabled = !ready;
+    }
+
+    function clearWinners() {
+      document.querySelectorAll('.compare-slot').forEach(s => s.classList.remove('winner'));
+    }
+
+    async function getAdvice() {
+      if (!canMakeRequest()) {
+        showPaywall();
+        return;
+      }
+
+      const btn = document.getElementById('go-btn');
+      const extra = document.getElementById('extra-input').value.trim();
+      btn.disabled = true;
+      btn.innerHTML = 'Picking <span class="loading-dot">...</span>';
+      document.getElementById('result-card').style.display = 'none';
+      clearWinners();
+
+      // Prepare images
+      const images = mode === 'single'
+        ? [singleImg]
+        : compareImgs.filter(x => x);
+
+      try {
+        // Call OUR backend (which calls OpenRouter securely)
+        const res = await fetch('/api/pick', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mode,
+            images,
+            occasion: selectedOcc,
+            extra
+          })
+        });
+
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error || 'Server error');
+        }
+
+        const parsed = await res.json();
+
+        const verdictBar = document.getElementById('verdict-bar');
+
+        if (mode === 'single') {
+          const cls = parsed.verdict === 'YES' ? 'yes' : parsed.verdict === 'NO' ? 'no' : 'maybe';
+          const icon = parsed.verdict === 'YES' ? '✓' : parsed.verdict === 'NO' ? '✕' : '~';
+          verdictBar.className = 'verdict-bar ' + cls;
+          verdictBar.innerHTML = `<span style="font-size:18px; font-style:normal;">${icon}</span> ${parsed.verdict_label}`;
+        } else {
+          verdictBar.className = 'verdict-bar winner';
+          verdictBar.innerHTML = `<span style="font-size:16px; font-style:normal;">★</span> ${parsed.verdict_label}`;
+          const validIndices = compareImgs.map((img, i) => img ? i : -1).filter(i => i >= 0);
+          const realWinnerIdx = validIndices[parsed.winner_index];
+          const winnerSlot = document.getElementById('slot-' + realWinnerIdx);
+          if (winnerSlot) winnerSlot.classList.add('winner');
+        }
+
+        document.getElementById('result-reason').textContent = parsed.reason;
+        const tipsList = document.getElementById('tips-list');
+        tipsList.innerHTML = parsed.tips.map(t =>
+          `<div class="tip-item"><div class="tip-dot"></div><span>${t}</span></div>`
+        ).join('');
+
+        document.getElementById('result-card').style.display = 'block';
+        incrementPicks();
+
+      } catch (err) {
+        const verdictBar = document.getElementById('verdict-bar');
+        verdictBar.className = 'verdict-bar maybe';
+        verdictBar.innerHTML = 'Hmm — could not analyze. Try again?';
+        document.getElementById('result-reason').textContent = 'Error: ' + err.message;
+        document.getElementById('tips-list').innerHTML = '';
+        document.getElementById('result-card').style.display = 'block';
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = 'Pick for me';
+    }
+
+    function resetAll() {
+      singleImg = null;
+      compareImgs = [null, null, null, null];
+      selectedOcc = null;
+
+      const previewSingle = document.getElementById('preview-single');
+      previewSingle.style.display = 'none';
+      previewSingle.src = '';
+      document.getElementById('single-placeholder').style.display = 'flex';
+      document.getElementById('file-input-single').value = '';
+      document.getElementById('camera-input-single').value = '';
+
+      renderCompareGrid();
+
+      document.querySelectorAll('.occ-btn').forEach(b => b.classList.remove('selected'));
+      document.getElementById('extra-input').value = '';
+      document.getElementById('result-card').style.display = 'none';
+      document.getElementById('go-btn').disabled = true;
+    }
+
+    // Initialize
+    renderCompareGrid();
+  </script>
+
+</body>
+</html>
