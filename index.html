@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pickr — your fit decision, made simple</title>
+  <meta name="description" content="Stop staring at your closet. Upload your outfit, pick your occasion, and let Pickr tell you exactly what to wear." />
+
+  <meta property="og:title" content="Pickr — your fit decision, made simple" />
+  <meta property="og:description" content="Upload your outfit, pick the occasion, get an honest verdict in seconds." />
+  <meta property="og:type" content="website" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #f6f4ef;
+      --cream-deep: #efebe2;
+      --terracotta: #d97757;
+      --terracotta-deep: #c25f3f;
+      --ink: #1a1a18;
+      --ink-soft: #555;
+      --muted: #888;
+      --border: #e8e4d6;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Nav */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(246, 244, 239, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 0.5px solid rgba(0,0,0,0.06);
+    }
+    .nav-inner {
+      max-width: 1200px; margin: 0 auto;
+      padding: 1rem 1.5rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .nav-logo {
+      font-family: 'Instrument Serif', serif;
+      font-size: 26px; letter-spacing: -0.5px;
+      display: flex; align-items: baseline; gap: 4px;
+      color: var(--ink); text-decoration: none;
+    }
+    .nav-logo .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--terracotta); display: inline-block; }
+    .nav-links { display: flex; gap: 2rem; align-items: center; }
+    .nav-links a { color: var(--ink-soft); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--ink); }
+    .nav-cta { background: var(--ink); color: var(--cream) !important; padding: 8px 16px; border-radius: 8px; font-size: 13px; }
+    .nav-cta:hover { background: #2e2e2a; }
+    @media (max-width: 700px) { .nav-links a:not(.nav-cta) { display: none; } }
+
+    /* Hero */
+    .hero {
+      max-width: 1100px; margin: 0 auto;
+      padding: 7rem 1.5rem 5rem;
+      text-align: center; position: relative;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(217, 119, 87, 0.1);
+      color: var(--terracotta-deep);
+      padding: 6px 14px; border-radius: 100px;
+      font-size: 12px; font-weight: 500;
+      margin-bottom: 1.5rem; letter-spacing: 0.3px;
+    }
+    .badge::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--terracotta); animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    h1 {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(48px, 8vw, 88px);
+      font-weight: 400; line-height: 1;
+      letter-spacing: -2px; margin-bottom: 1.5rem;
+    }
+    h1 em { font-style: italic; color: var(--terracotta); }
+
+    .hero-sub {
+      font-size: clamp(16px, 2vw, 19px);
+      color: var(--ink-soft);
+      max-width: 560px; margin: 0 auto 2.5rem;
+      line-height: 1.55;
+    }
+    .hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 1rem; }
+
+    .btn-primary {
+      background: var(--ink); color: var(--cream);
+      padding: 14px 28px; border-radius: 10px;
+      font-size: 15px; font-weight: 500;
+      border: none; cursor: pointer;
+      transition: transform 0.15s, background 0.15s;
+      text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-primary:hover { background: #2e2e2a; transform: translateY(-1px); }
+    .btn-primary:active { transform: scale(0.98); }
+
+    .btn-secondary {
+      background: transparent; color: var(--ink);
+      padding: 14px 28px; border-radius: 10px;
+      font-size: 15px; font-weight: 500;
+      border: 1px solid #d8d3c5; cursor: pointer;
+      transition: all 0.15s; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-secondary:hover { border-color: var(--ink); }
+
+    .hero-trust { font-size: 12px; color: var(--muted); letter-spacing: 0.3px; }
+
+    /* Phone preview */
+    .phone-preview-wrap { max-width: 380px; margin: 4rem auto 0; position: relative; }
+    .phone-frame {
+      background: #1a1a18; border-radius: 36px; padding: 10px;
+      box-shadow: 0 30px 60px -15px rgba(0,0,0,0.25), 0 8px 20px -8px rgba(0,0,0,0.1);
+    }
+    .phone-screen {
+      background: var(--cream); border-radius: 28px; overflow: hidden;
+      aspect-ratio: 9 / 16; position: relative;
+      display: flex; flex-direction: column;
+    }
+    .phone-notch {
+      position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+      width: 90px; height: 22px; background: #1a1a18;
+      border-radius: 100px; z-index: 5;
+    }
+    .phone-content { padding: 3.5rem 1.25rem 1.25rem; flex: 1; overflow: hidden; }
+    .pp-logo { font-family: 'Instrument Serif', serif; font-size: 24px; display: flex; align-items: baseline; gap: 4px; margin-bottom: 1rem; }
+    .pp-logo .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--terracotta); }
+    .pp-photo {
+      width: 100%; height: 200px;
+      background: linear-gradient(135deg, #c8b9a2 0%, #d97757 100%);
+      border-radius: 12px; margin-bottom: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 80px;
+    }
+    .pp-verdict {
+      background: #e8f0d8; color: #3b6d11;
+      padding: 10px 14px; border-radius: 10px;
+      font-family: 'Instrument Serif', serif; font-style: italic;
+      font-size: 16px; margin-bottom: 0.75rem;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .pp-tip {
+      background: #fff; padding: 10px 12px; border-radius: 10px;
+      font-size: 12px; color: var(--ink-soft); line-height: 1.5;
+      border: 0.5px solid var(--border);
+    }
+    .pp-tip strong { color: var(--terracotta); font-weight: 500; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; display: block; margin-bottom: 4px; }
+
+    .float-card {
+      position: absolute; background: #fff;
+      padding: 10px 14px; border-radius: 12px;
+      box-shadow: 0 10px 30px -10px rgba(0,0,0,0.15);
+      font-size: 12px; display: flex; align-items: center; gap: 8px;
+      animation: floaty 6s ease-in-out infinite;
+    }
+    @keyframes floaty { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    .float-card .emoji { font-size: 18px; }
+    .float-card .text { font-weight: 500; }
+    .float-card .text small { display: block; color: var(--muted); font-weight: 400; font-size: 10px; }
+    .float-1 { top: 10%; left: -20px; animation-delay: 0s; }
+    .float-2 { top: 60%; right: -30px; animation-delay: 2s; }
+    .float-3 { bottom: 8%; left: -10px; animation-delay: 4s; }
+    @media (max-width: 700px) { .float-card { display: none; } }
+
+    section { max-width: 1100px; margin: 0 auto; padding: 5rem 1.5rem; }
+    .section-eyebrow {
+      font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--terracotta); font-weight: 600;
+      margin-bottom: 1rem; text-align: center;
+    }
+    h2 {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 400; line-height: 1.05;
+      letter-spacing: -1px; text-align: center;
+      margin-bottom: 1rem;
+    }
+    h2 em { font-style: italic; color: var(--terracotta); }
+    .section-sub {
+      text-align: center; color: var(--ink-soft);
+      max-width: 560px; margin: 0 auto 4rem;
+      font-size: 17px;
+    }
+
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem; }
+    @media (max-width: 700px) { .steps { grid-template-columns: 1fr; gap: 1.5rem; } }
+    .step {
+      background: #fff; padding: 2rem 1.5rem;
+      border-radius: 16px; border: 0.5px solid var(--border);
+      position: relative; transition: transform 0.2s;
+    }
+    .step:hover { transform: translateY(-2px); }
+    .step-num {
+      position: absolute; top: -12px; left: 1.5rem;
+      background: var(--terracotta); color: #fff;
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Instrument Serif', serif; font-size: 14px; font-weight: 500;
+    }
+    .step-icon { font-size: 32px; margin-bottom: 1rem; }
+    .step-title { font-family: 'Instrument Serif', serif; font-size: 22px; margin-bottom: 0.5rem; }
+    .step-desc { color: var(--ink-soft); font-size: 14px; line-height: 1.6; }
+
+    .features-section {
+      background: var(--cream-deep); border-radius: 24px;
+      padding: 4rem 2rem; margin: 4rem auto;
+      max-width: 1100px;
+    }
+    @media (max-width: 700px) { .features-section { padding: 3rem 1rem; border-radius: 16px; } }
+    .features-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1.5rem; max-width: 800px; margin: 3rem auto 0;
+    }
+    @media (max-width: 700px) { .features-grid { grid-template-columns: 1fr; } }
+    .feature {
+      background: #fff; padding: 1.75rem;
+      border-radius: 16px; border: 0.5px solid var(--border);
+    }
+    .feature-icon {
+      font-size: 28px; margin-bottom: 0.75rem;
+      width: 48px; height: 48px;
+      background: rgba(217, 119, 87, 0.1); border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .feature-title { font-family: 'Instrument Serif', serif; font-size: 22px; margin-bottom: 0.5rem; }
+    .feature-desc { font-size: 14px; color: var(--ink-soft); line-height: 1.6; }
+
+    .cta-banner { text-align: center; margin-top: 3rem; }
+
+    .pricing-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1rem; max-width: 800px; margin: 3rem auto 0;
+    }
+    @media (max-width: 700px) { .pricing-grid { grid-template-columns: 1fr; } }
+    .price-card {
+      background: #fff; border-radius: 16px;
+      padding: 2rem; border: 0.5px solid var(--border);
+      position: relative;
+    }
+    .price-card.featured {
+      border: 2px solid var(--terracotta);
+      background: linear-gradient(180deg, #fff 0%, #fef7f1 100%);
+    }
+    .price-badge {
+      position: absolute; top: -12px; right: 20px;
+      background: var(--terracotta); color: #fff;
+      padding: 4px 12px; border-radius: 100px;
+      font-size: 11px; font-weight: 500; letter-spacing: 0.5px;
+    }
+    .price-name { font-family: 'Instrument Serif', serif; font-size: 26px; margin-bottom: 0.25rem; }
+    .price-tagline { font-size: 13px; color: var(--muted); margin-bottom: 1.25rem; }
+    .price-amount {
+      font-family: 'Instrument Serif', serif; font-size: 44px;
+      line-height: 1; margin-bottom: 1.5rem;
+      display: flex; align-items: baseline; gap: 4px;
+    }
+    .price-amount small { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--muted); font-weight: 400; }
+    .price-features { list-style: none; margin-bottom: 1.5rem; }
+    .price-features li {
+      padding: 8px 0; font-size: 14px; color: var(--ink-soft);
+      display: flex; align-items: flex-start; gap: 8px;
+      border-top: 0.5px solid var(--border);
+    }
+    .price-features li:first-child { border-top: none; }
+    .price-features li::before { content: '✓'; color: var(--terracotta); font-weight: 600; flex-shrink: 0; }
+    .price-cta {
+      width: 100%; padding: 12px; border-radius: 10px;
+      border: none; font-family: 'Inter', sans-serif;
+      font-size: 14px; font-weight: 500; cursor: pointer;
+      transition: background 0.15s, transform 0.15s;
+      text-decoration: none; display: block; text-align: center;
+      box-sizing: border-box;
+    }
+    .price-card .price-cta { background: var(--cream-deep); color: var(--ink); }
+    .price-card.featured .price-cta { background: var(--ink); color: var(--cream); }
+    .price-card .price-cta:hover { background: #e0d9c5; }
+    .price-card.featured .price-cta:hover { background: #2e2e2a; transform: translateY(-1px); }
+
+    .testimonials { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin-top: 3rem; }
+    @media (max-width: 700px) { .testimonials { grid-template-columns: 1fr; } }
+    .testimonial {
+      background: #fff; padding: 1.5rem;
+      border-radius: 12px; border: 0.5px solid var(--border);
+    }
+    .test-stars { color: var(--terracotta); font-size: 14px; margin-bottom: 0.75rem; letter-spacing: 1px; }
+    .test-quote {
+      font-family: 'Instrument Serif', serif; font-size: 17px;
+      font-style: italic; color: var(--ink); line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+    .test-author { display: flex; align-items: center; gap: 10px; }
+    .test-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--cream-deep);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 500; color: var(--ink-soft);
+    }
+    .test-name { font-size: 13px; font-weight: 500; }
+    .test-handle { font-size: 11px; color: var(--muted); }
+
+    .final-cta { text-align: center; padding: 6rem 1.5rem; max-width: 700px; margin: 0 auto; }
+
+    footer {
+      background: var(--ink); color: var(--cream);
+      padding: 3rem 1.5rem 2rem;
+      text-align: center; margin-top: 4rem;
+    }
+    .footer-logo {
+      font-family: 'Instrument Serif', serif; font-size: 32px;
+      margin-bottom: 1rem;
+      display: inline-flex; align-items: baseline; gap: 4px;
+    }
+    .footer-logo .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--terracotta); }
+    .footer-tag { color: rgba(246, 244, 239, 0.6); font-size: 14px; margin-bottom: 1.5rem; }
+    .footer-links {
+      display: flex; justify-content: center; gap: 2rem;
+      margin-bottom: 1.5rem; flex-wrap: wrap;
+    }
+    .footer-links a { color: rgba(246, 244, 239, 0.7); text-decoration: none; font-size: 13px; transition: color 0.15s; }
+    .footer-links a:hover { color: var(--cream); }
+    .footer-copy { color: rgba(246, 244, 239, 0.4); font-size: 12px; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">Pickr<span class="dot"></span></a>
+      <div class="nav-links">
+        <a href="#how-it-works">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="app.html" class="nav-cta">Try free →</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="badge">Now in beta — free to try</div>
+    <h1>Stop staring at your<br/><em>closet</em>.</h1>
+    <p class="hero-sub">Upload your outfit, pick the occasion, and Pickr tells you exactly what to wear — in seconds.</p>
+    <div class="hero-ctas">
+      <a href="app.html" class="btn-primary">Try Pickr free →</a>
+      <a href="#how-it-works" class="btn-secondary">See how it works</a>
+    </div>
+    <p class="hero-trust">No signup needed to try • Free for 3 picks a week</p>
+
+    <div class="phone-preview-wrap">
+      <div class="float-card float-1">
+        <div class="emoji">✓</div>
+        <div class="text">Perfect for dinner<small>2 sec ago</small></div>
+      </div>
+      <div class="float-card float-2">
+        <div class="emoji">★</div>
+        <div class="text">Outfit 2 wins<small>compared 3 fits</small></div>
+      </div>
+      <div class="float-card float-3">
+        <div class="emoji">~</div>
+        <div class="text">Try the boots instead<small>quick tip</small></div>
+      </div>
+
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="phone-content">
+            <div class="pp-logo">Pickr<span class="dot"></span></div>
+            <div class="pp-photo">👗</div>
+            <div class="pp-verdict">
+              <span style="font-style:normal;">✓</span> Perfect for dinner
+            </div>
+            <div class="pp-tip">
+              <strong>Styling tip</strong>
+              The neutral tones work beautifully — try adding gold earrings to elevate the whole look.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how-it-works">
+    <div class="section-eyebrow">How it works</div>
+    <h2>Three taps to<br/><em>your verdict</em></h2>
+    <p class="section-sub">No more endless outfit changes. Just upload, pick, and go.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-icon">📸</div>
+        <div class="step-title">Snap your fit</div>
+        <p class="step-desc">Upload one outfit for a yes/no verdict, or up to 4 to compare side by side.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-icon">📍</div>
+        <div class="step-title">Pick the occasion</div>
+        <p class="step-desc">Date night? Job interview? Casual brunch? Tell Pickr where you're headed.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-icon">✨</div>
+        <div class="step-title">Get the verdict</div>
+        <p class="step-desc">Honest advice in seconds, with specific styling tips you can actually use.</p>
+      </div>
+    </div>
+
+    <div class="cta-banner">
+      <a href="app.html" class="btn-primary">Try Pickr now →</a>
+    </div>
+  </section>
+
+  <div class="features-section" id="features">
+    <div class="section-eyebrow">What you get</div>
+    <h2>Two ways to <em>decide</em></h2>
+    <p class="section-sub">Whether you have one outfit you're unsure about or four you're stuck between — Pickr handles both.</p>
+
+    <div class="features-grid">
+      <div class="feature">
+        <div class="feature-icon">👗</div>
+        <div class="feature-title">Should I wear this?</div>
+        <p class="feature-desc">Upload one outfit and get a clear yes / no / maybe verdict, plus styling tips tailored to where you're going.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⚖️</div>
+        <div class="feature-title">Pick my best fit</div>
+        <p class="feature-desc">Upload 2-4 outfits and Pickr crowns the winner — with reasons why it beats the others for your occasion.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📍</div>
+        <div class="feature-title">9 occasions covered</div>
+        <p class="feature-desc">Party, dinner, work, date, gym, wedding, beach, mall, casual — Pickr knows what each calls for.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">Instant verdicts</div>
+        <p class="feature-desc">Powered by advanced AI vision. Get honest, specific feedback in under 5 seconds — no waiting around.</p>
+      </div>
+    </div>
+
+    <div class="cta-banner">
+      <a href="app.html" class="btn-primary">Open Pickr →</a>
+    </div>
+  </div>
+
+  <section id="pricing">
+    <div class="section-eyebrow">Pricing</div>
+    <h2>Simple, <em>honest</em> pricing</h2>
+    <p class="section-sub">Try it free. Upgrade when you can't live without it.</p>
+
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-name">Free</div>
+        <div class="price-tagline">Get the hang of it</div>
+        <div class="price-amount">$0<small>/forever</small></div>
+        <ul class="price-features">
+          <li>3 picks per week</li>
+          <li>Single outfit verdicts</li>
+          <li>2-outfit comparisons</li>
+          <li>All occasion types</li>
+        </ul>
+        <a href="app.html" class="price-cta">Start free →</a>
+      </div>
+
+      <div class="price-card featured">
+        <div class="price-badge">RECOMMENDED</div>
+        <div class="price-name">Pro</div>
+        <div class="price-tagline">For daily outfit decisions</div>
+        <div class="price-amount">$2.99<small>/month</small></div>
+        <ul class="price-features">
+          <li>Unlimited picks</li>
+          <li>Compare up to 4 outfits</li>
+          <li>Save outfit history</li>
+          <li>Detailed styling tips</li>
+          <li>Cancel anytime</li>
+        </ul>
+        <a href="app.html" class="price-cta">Get Pro →</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-eyebrow">Loved by early users</div>
+    <h2>People are <em>obsessed</em></h2>
+
+    <div class="testimonials">
+      <div class="testimonial">
+        <div class="test-stars">★★★★★</div>
+        <p class="test-quote">"Saved me from wearing the wrong thing on my first date — turns out the dress was way too formal for a coffee meet."</p>
+        <div class="test-author">
+          <div class="test-avatar">SJ</div>
+          <div>
+            <div class="test-name">Sofia J.</div>
+            <div class="test-handle">@sofstyle</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial">
+        <div class="test-stars">★★★★★</div>
+        <p class="test-quote">"I take 30 minutes every morning deciding what to wear. Pickr does it in 10 seconds. Game changer."</p>
+        <div class="test-author">
+          <div class="test-avatar">AM</div>
+          <div>
+            <div class="test-name">Alex M.</div>
+            <div class="test-handle">@alexgrwm</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial">
+        <div class="test-stars">★★★★★</div>
+        <p class="test-quote">"The compare feature is genius. Sent 3 outfits to my girls AND to Pickr — Pickr's pick won every time."</p>
+        <div class="test-author">
+          <div class="test-avatar">MK</div>
+          <div>
+            <div class="test-name">Maya K.</div>
+            <div class="test-handle">@mayawearsthat</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="final-cta">
+    <div class="section-eyebrow">Ready?</div>
+    <h2>Your closet is <em>waiting</em></h2>
+    <p class="section-sub">Stop second-guessing. Start dressing with confidence.</p>
+    <a href="app.html" class="btn-primary">Try Pickr free →</a>
+    <p class="hero-trust" style="margin-top: 1rem;">No signup • 3 free picks per week</p>
+  </section>
+
+  <footer>
+    <div class="footer-logo">Pickr<span class="dot"></span></div>
+    <p class="footer-tag">Your fit decision, made simple.</p>
+    <div class="footer-links">
+      <a href="#how-it-works">How it works</a>
+      <a href="app.html">Try it</a>
+      <a href="#pricing">Pricing</a>
+      <a href="mailto:hello@pickr.app">Contact</a>
+    </div>
+    <p class="footer-copy">© 2026 Pickr. Made with care.</p>
+  </footer>
+
+</body>
+</html>

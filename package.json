@@ -1,0 +1,7 @@
+{
+  "name": "pickr",
+  "version": "1.0.0",
+  "description": "Your fit decision, made simple",
+  "type": "module",
+  "private": true
+}
