@@ -555,20 +555,35 @@
     <div class="paywall-card">
       <div class="paywall-icon">✨</div>
       <h3 class="paywall-title">You're <em>obsessed</em>?</h3>
-      <p class="paywall-text">You've used all 3 free picks. <strong>The first 100 users get lifetime access</strong> for a one-time $9.99 (we'll launch monthly subscriptions later for $4.99/mo).</p>
+      <p class="paywall-text">You've used all 3 free picks. Pick your plan and get unlimited outfit verdicts forever.</p>
  
-      <div style="background: #fef7f1; border: 1px solid #f4c4a8; border-radius: 10px; padding: 10px 14px; margin-bottom: 16px;">
-        <div style="font-size: 12px; color: #c25f3f; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px;">⏰ Limited spots</div>
-        <div style="font-size: 13px; color: #854f0b;">Drop your email — we'll send your invite in 24 hours.</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; margin-bottom: 16px;">
+        <!-- Monthly option -->
+        <div style="background: #fff; border: 1px solid #e8e4d6; border-radius: 12px; padding: 14px 12px; text-align: center; cursor: pointer; transition: border-color 0.15s, transform 0.1s;" onclick="window.location.href='https://buy.stripe.com/aFacMY9jPd1R3x04Ox53O01'" onmouseover="this.style.borderColor='#d97757'" onmouseout="this.style.borderColor='#e8e4d6'">
+          <div style="font-size: 11px; font-weight: 600; letter-spacing: 1px; color: #888; text-transform: uppercase; margin-bottom: 6px;">Monthly</div>
+          <div style="font-family: 'Instrument Serif', serif; font-size: 28px; line-height: 1;">€2.99<span style="font-family: 'Inter', sans-serif; font-size: 12px; color: #888; font-weight: 400;">/mo</span></div>
+          <div style="font-size: 11px; color: #888; margin-top: 6px;">Cancel anytime</div>
+        </div>
+ 
+        <!-- Lifetime option (highlighted) -->
+        <div style="background: linear-gradient(135deg, #fff 0%, #fef7f1 100%); border: 2px solid #d97757; border-radius: 12px; padding: 14px 12px; text-align: center; cursor: pointer; position: relative; transition: transform 0.1s;" onclick="window.location.href='https://buy.stripe.com/28E00c9jP4vl7Ng4Ox53O00'" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+          <div style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #d97757; color: #fff; font-size: 9px; font-weight: 600; padding: 3px 10px; border-radius: 100px; letter-spacing: 0.5px; white-space: nowrap;">⭐ BEST VALUE</div>
+          <div style="font-size: 11px; font-weight: 600; letter-spacing: 1px; color: #c25f3f; text-transform: uppercase; margin-bottom: 6px;">Lifetime</div>
+          <div style="font-family: 'Instrument Serif', serif; font-size: 28px; line-height: 1; color: #1a1a18;">€9.99</div>
+          <div style="font-size: 11px; color: #c25f3f; margin-top: 6px; font-weight: 500;">Pay once, use forever</div>
+        </div>
       </div>
  
       <ul class="paywall-features">
-        <li>Unlimited picks forever</li>
+        <li>Unlimited picks every day</li>
         <li>Compare up to 4 outfits</li>
         <li>Save your outfit history</li>
         <li>Detailed styling tips</li>
-        <li>One-time payment, no subscription</li>
       </ul>
+ 
+      <div style="text-align: center; color: #aaa; font-size: 11px; margin: 14px 0 8px; letter-spacing: 0.5px;">— OR —</div>
+ 
+      <p style="font-size: 12px; color: var(--ink-soft); margin-bottom: 8px; text-align: center;">Not ready? Drop your email and we'll let you know about updates.</p>
  
       <form id="waitlist-form" onsubmit="submitWaitlist(event)" style="display: flex; flex-direction: column; gap: 8px;">
         <input
@@ -579,11 +594,11 @@
           required
           style="margin-bottom: 0; text-align: center;"
         />
-        <button type="submit" class="paywall-cta" id="waitlist-submit">Claim my spot →</button>
+        <button type="submit" class="paywall-cta" id="waitlist-submit" style="font-size: 14px; padding: 10px;">Notify me when ready →</button>
       </form>
  
       <div id="waitlist-success" style="display:none; padding: 14px; background: #e8f0d8; color: #3b6d11; border-radius: 10px; font-family: 'Instrument Serif', serif; font-style: italic; font-size: 17px;">
-        ✓ Spot reserved. Check your email in 24h!
+        ✓ You're on the list!
       </div>
  
       <button class="paywall-close" onclick="hidePaywall()">Maybe later</button>
@@ -591,6 +606,26 @@
   </div>
  
   <script>
+    // Check if user just returned from a successful Stripe payment
+    function checkPaidStatus() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('paid') === 'true') {
+        localStorage.setItem('pickr_pro', 'true');
+        // Clean URL
+        window.history.replaceState({}, '', window.location.pathname);
+        // Show celebration
+        setTimeout(() => {
+          alert('🎉 Welcome to Pickr Pro! You now have unlimited picks. Thank you for supporting Pickr!');
+        }, 500);
+      }
+    }
+ 
+    function isPaidUser() {
+      return localStorage.getItem('pickr_pro') === 'true';
+    }
+ 
+    checkPaidStatus();
+ 
     // Free pick tracking - 3 picks total (lifetime, not weekly)
     const FREE_LIMIT = 3;
     const STORAGE_KEY = 'pickr_picks_total';
@@ -611,9 +646,15 @@
     }
  
     function updatePicksBadge() {
+      const badge = document.getElementById('picks-badge');
+      if (isPaidUser()) {
+        badge.textContent = '✨ Pro — unlimited';
+        badge.style.background = '#e8f0d8';
+        badge.style.color = '#3b6d11';
+        return;
+      }
       const used = getPicksUsed();
       const remaining = Math.max(0, FREE_LIMIT - used);
-      const badge = document.getElementById('picks-badge');
       if (remaining === 0) {
         badge.textContent = 'No picks left';
         badge.style.background = '#fbe5e2';
@@ -628,6 +669,7 @@
     }
  
     function canMakeRequest() {
+      if (isPaidUser()) return true;
       return getPicksUsed() < FREE_LIMIT;
     }
  
@@ -637,7 +679,7 @@
     // ============================================
     // PASTE YOUR FORMSPREE URL HERE ⬇️
     // ============================================
-    const FORMSPREE_URL = 'https://formspree.io/f/YOUR_FORM_ID_HERE';
+    const FORMSPREE_URL = 'https://formspree.io/f/mykoybla';
     // ============================================
  
     async function submitWaitlist(e) {
