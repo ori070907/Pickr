@@ -106,39 +106,94 @@ winner_index is 0-based (Outfit 1 = 0). Be decisive.`;
     const data = await openrouterRes.json();
     const rawText = data.choices?.[0]?.message?.content || '';
  
-    let parsed;
+    let parsed = null;
+ 
+    // Strategy 1: Try direct JSON parse (after stripping markdown fences)
     try {
-      // Strip markdown code fences if present
-      let cleaned = rawText.replace(/```json|```/g, '').trim();
- 
-      // Some models wrap the response in extra braces or text
-      // Find the first { and last } to extract just the JSON object
-      const firstBrace = cleaned.indexOf('{');
-      const lastBrace = cleaned.lastIndexOf('}');
-      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-        cleaned = cleaned.substring(firstBrace, lastBrace + 1);
-      }
- 
+      let cleaned = rawText.replace(/```json|```/gi, '').trim();
       parsed = JSON.parse(cleaned);
+    } catch (e) {
+      // Try next strategy
+    }
  
-      // Some models double-wrap the response — unwrap if needed
-      if (parsed && typeof parsed === 'object' && !parsed.verdict && !parsed.winner_index && !parsed.verdict_label) {
-        // Look for the actual response object inside
-        const keys = Object.keys(parsed);
-        for (const key of keys) {
-          if (parsed[key] && typeof parsed[key] === 'object' &&
-              (parsed[key].verdict || parsed[key].winner_index !== undefined || parsed[key].verdict_label)) {
-            parsed = parsed[key];
-            break;
-          }
+    // Strategy 2: Extract the JSON between first { and last }
+    if (!parsed || (typeof parsed === 'object' && !parsed.verdict && parsed.winner_index === undefined)) {
+      try {
+        let cleaned = rawText.replace(/```json|```/gi, '').trim();
+        const firstBrace = cleaned.indexOf('{');
+        const lastBrace = cleaned.lastIndexOf('}');
+        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+          const extracted = cleaned.substring(firstBrace, lastBrace + 1);
+          parsed = JSON.parse(extracted);
+        }
+      } catch (e) {
+        // Try next strategy
+      }
+    }
+ 
+    // Strategy 3: If parsed but missing required fields, look for nested response
+    if (parsed && typeof parsed === 'object' && !parsed.verdict && parsed.winner_index === undefined && !parsed.verdict_label) {
+      for (const key of Object.keys(parsed)) {
+        const val = parsed[key];
+        if (val && typeof val === 'object' && (val.verdict || val.winner_index !== undefined || val.verdict_label)) {
+          parsed = val;
+          break;
         }
       }
-    } catch (parseErr) {
-      console.error('Parse error:', rawText);
+    }
+ 
+    // Strategy 4: Last resort - extract fields manually with regex if JSON parse failed completely
+    if (!parsed || (typeof parsed === 'object' && !parsed.verdict && parsed.winner_index === undefined && !parsed.verdict_label)) {
+      try {
+        const verdictMatch = rawText.match(/"verdict"\s*:\s*"([^"]+)"/);
+        const labelMatch = rawText.match(/"verdict_label"\s*:\s*"([^"]+)"/);
+        const reasonMatch = rawText.match(/"reason"\s*:\s*"([^"]+)"/);
+        const winnerMatch = rawText.match(/"winner_index"\s*:\s*(\d+)/);
+        const tipsMatch = rawText.match(/"tips"\s*:\s*\[([\s\S]*?)\]/);
+ 
+        if (labelMatch || verdictMatch || winnerMatch !== null) {
+          parsed = {};
+          if (verdictMatch) parsed.verdict = verdictMatch[1];
+          if (labelMatch) parsed.verdict_label = labelMatch[1];
+          if (reasonMatch) parsed.reason = reasonMatch[1];
+          if (winnerMatch) parsed.winner_index = parseInt(winnerMatch[1], 10);
+          if (tipsMatch) {
+            const tipsRaw = tipsMatch[1];
+            const tipMatches = [...tipsRaw.matchAll(/"([^"]+)"/g)];
+            parsed.tips = tipMatches.map(m => m[1]);
+          } else {
+            parsed.tips = ['Style with confidence!', 'Trust your instincts.', 'Have fun with it.'];
+          }
+        }
+      } catch (e) {
+        // Give up
+      }
+    }
+ 
+    // If we still can't parse, return error
+    if (!parsed || typeof parsed !== 'object') {
+      console.error('Parse error - raw response:', rawText);
       return res.status(500).json({
         error: 'Could not parse AI response',
-        raw: rawText
+        raw: rawText.substring(0, 500)
       });
+    }
+ 
+    // Ensure required fields exist with defaults
+    if (mode === 'single' && !parsed.verdict) {
+      parsed.verdict = 'MAYBE';
+    }
+    if (!parsed.verdict_label) {
+      parsed.verdict_label = mode === 'single' ? 'Worth a try' : 'Outfit picked';
+    }
+    if (!parsed.reason) {
+      parsed.reason = 'Looking great overall.';
+    }
+    if (!parsed.tips || !Array.isArray(parsed.tips) || parsed.tips.length === 0) {
+      parsed.tips = ['Trust your instincts.', 'Confidence is the best accessory.', 'Have fun with the look.'];
+    }
+    if (mode === 'compare' && parsed.winner_index === undefined) {
+      parsed.winner_index = 0;
     }
  
     return res.status(200).json(parsed);
@@ -148,3 +203,4 @@ winner_index is 0-based (Outfit 1 = 0). Be decisive.`;
     return res.status(500).json({ error: 'Server error', message: err.message });
   }
 }
+ 
