@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms of Service — Pickr</title>
+  <meta name="description" content="Pickr's Terms of Service: the rules for using our outfit feedback app." />
+ 
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+ 
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+    :root {
+      --cream: #f6f4ef;
+      --cream-deep: #efebe2;
+      --terracotta: #d97757;
+      --terracotta-deep: #c25f3f;
+      --ink: #1a1a18;
+      --ink-soft: #555;
+      --muted: #888;
+      --border: #e8e4d6;
+    }
+ 
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--cream);
+      color: var(--ink);
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+ 
+    .topbar {
+      background: rgba(246, 244, 239, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 0.5px solid rgba(0,0,0,0.06);
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .topbar-logo {
+      font-family: 'Instrument Serif', serif;
+      font-size: 26px; letter-spacing: -0.5px;
+      color: var(--ink); text-decoration: none;
+      display: flex; align-items: baseline; gap: 4px;
+    }
+    .topbar-logo .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--terracotta); }
+    .back-link {
+      font-size: 13px;
+      color: var(--ink-soft);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--ink); }
+ 
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 5rem;
+    }
+ 
+    h1 {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(40px, 6vw, 56px);
+      font-weight: 400;
+      line-height: 1.05;
+      letter-spacing: -1.5px;
+      margin-bottom: 0.75rem;
+    }
+    h1 em { font-style: italic; color: var(--terracotta); }
+ 
+    .updated {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 3rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 0.5px solid var(--border);
+    }
+ 
+    h2 {
+      font-family: 'Instrument Serif', serif;
+      font-size: 28px;
+      font-weight: 400;
+      letter-spacing: -0.5px;
+      margin-top: 3rem;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+    h2 .num {
+      color: var(--terracotta);
+      font-weight: 500;
+      margin-right: 8px;
+    }
+    h3 {
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      margin-top: 1.75rem;
+      margin-bottom: 0.5rem;
+      color: var(--ink);
+    }
+ 
+    p {
+      color: var(--ink-soft);
+      font-size: 15px;
+      margin-bottom: 1rem;
+    }
+    p strong { color: var(--ink); }
+ 
+    .summary-box {
+      background: var(--cream-deep);
+      border-left: 3px solid var(--terracotta);
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      font-size: 14px;
+      color: var(--ink-soft);
+    }
+    .summary-box strong em {
+      color: var(--terracotta-deep);
+      font-style: italic;
+      font-weight: 600;
+    }
+ 
+    ul {
+      margin-bottom: 1rem;
+      padding-left: 1.25rem;
+    }
+    ul li {
+      color: var(--ink-soft);
+      font-size: 15px;
+      margin-bottom: 0.4rem;
+      line-height: 1.65;
+    }
+ 
+    a {
+      color: var(--terracotta-deep);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 2px;
+    }
+    a:hover { color: var(--terracotta); }
+ 
+    .toc {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    .toc-title {
+      font-family: 'Instrument Serif', serif;
+      font-size: 20px;
+      margin-bottom: 1rem;
+      font-style: italic;
+    }
+    .toc-list {
+      list-style: none;
+      padding: 0;
+      counter-reset: toc;
+    }
+    .toc-list li {
+      counter-increment: toc;
+      padding: 6px 0;
+      font-size: 14px;
+      border-bottom: 0.5px solid var(--border);
+    }
+    .toc-list li:last-child { border-bottom: none; }
+    .toc-list li::before {
+      content: counter(toc) ". ";
+      color: var(--terracotta);
+      font-weight: 500;
+      margin-right: 4px;
+    }
+    .toc-list a {
+      color: var(--ink-soft);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .toc-list a:hover { color: var(--terracotta-deep); }
+ 
+    .footer {
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 0.5px solid var(--border);
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .footer a {
+      color: var(--ink-soft);
+      text-decoration: none;
+      margin: 0 12px;
+    }
+    .footer a:hover { color: var(--terracotta-deep); }
+  </style>
+</head>
+<body>
+ 
+  <div class="topbar">
+    <a href="index.html" class="topbar-logo">Pickr<span class="dot"></span></a>
+    <a href="index.html" class="back-link">← Back to Pickr</a>
+  </div>
+ 
+  <div class="container">
+    <h1>Terms of <em>Service</em></h1>
+    <p class="updated">Last updated May 02, 2026</p>
+ 
+    <p>Welcome to Pickr! These Terms of Service ("<strong>Terms</strong>") govern your use of <strong>Pickr</strong> ("<strong>we</strong>," "<strong>us</strong>," or "<strong>our</strong>") and our website <a href="https://pickr-lyart.vercel.app">pickr-lyart.vercel.app</a> and any related services (collectively, the "<strong>Services</strong>").</p>
+ 
+    <p><strong>By using Pickr, you agree to these Terms.</strong> If you do not agree, please do not use the Services.</p>
+ 
+    <p>Questions? Contact us at <a href="mailto:trypickr@gmail.com">trypickr@gmail.com</a>.</p>
+ 
+    <h2><span class="num">→</span>Summary of key points</h2>
+ 
+    <div class="summary-box"><strong>What is Pickr?</strong> An AI-powered web app that gives you outfit feedback and styling advice based on photos you upload.</div>
+ 
+    <div class="summary-box"><strong>Free vs. Pro?</strong> Free users get 3 picks. Pro is €2.99/month or €9.99 lifetime for unlimited picks and extra features.</div>
+ 
+    <div class="summary-box"><strong>Refunds?</strong> Full refund within 14 days of purchase. Just email us.</div>
+ 
+    <div class="summary-box"><strong>Age requirement?</strong> You must be 18 or older (or have parent/guardian consent) to use Pickr.</div>
+ 
+    <div class="summary-box"><strong>Your photos?</strong> They're sent to our AI for analysis only. We don't store them or share them publicly.</div>
+ 
+    <div class="toc">
+      <div class="toc-title">Table of contents</div>
+      <ul class="toc-list">
+        <li><a href="#services">Our Services</a></li>
+        <li><a href="#eligibility">Eligibility and account</a></li>
+        <li><a href="#pricing">Pricing, billing, and refunds</a></li>
+        <li><a href="#user-content">Your content and uploads</a></li>
+        <li><a href="#prohibited">Prohibited activities</a></li>
+        <li><a href="#ai-disclaimer">AI advice disclaimer</a></li>
+        <li><a href="#ip">Intellectual property</a></li>
+        <li><a href="#third-party">Third-party services</a></li>
+        <li><a href="#termination">Termination</a></li>
+        <li><a href="#disclaimers">Disclaimers and limitation of liability</a></li>
+        <li><a href="#governing-law">Governing law</a></li>
+        <li><a href="#changes">Changes to these terms</a></li>
+        <li><a href="#contact">Contact us</a></li>
+      </ul>
+    </div>
+ 
+    <h2 id="services"><span class="num">1.</span>Our Services</h2>
+    <p>Pickr is an AI-powered web application that helps you decide what to wear. You can upload photos of outfits and receive AI-generated feedback, styling tips, and comparisons based on the occasion you select.</p>
+    <p>The Services are intended to be a fun, helpful tool for personal styling decisions. <strong>They are not a substitute for professional fashion or styling advice.</strong></p>
+ 
+    <h2 id="eligibility"><span class="num">2.</span>Eligibility and account</h2>
+    <p><strong><em>In short:</em></strong> You must be 18 or older to use Pickr.</p>
+    <p>By using Pickr, you represent that:</p>
+    <ul>
+      <li>You are at least 18 years old, or you have permission from a parent or legal guardian</li>
+      <li>You will provide accurate and complete information when interacting with our Services</li>
+      <li>You will use Pickr in compliance with these Terms and applicable laws</li>
+    </ul>
+    <p>If we discover that someone under 18 has used Pickr without consent, we will deactivate their access and delete their data.</p>
+ 
+    <h2 id="pricing"><span class="num">3.</span>Pricing, billing, and refunds</h2>
+    <p><strong><em>In short:</em></strong> Free tier with 3 picks. Pro: €2.99/month or €9.99 lifetime. 14-day refunds.</p>
+ 
+    <h3>Free tier</h3>
+    <p>You can use Pickr for free for up to 3 outfit picks. After that, you'll be invited to upgrade to Pro.</p>
+ 
+    <h3>Pro plans</h3>
+    <p>We offer two paid plans:</p>
+    <ul>
+      <li><strong>Pickr Pro Monthly</strong> — €2.99 billed monthly. Auto-renews until cancelled.</li>
+      <li><strong>Pickr Pro Lifetime</strong> — €9.99 one-time payment. Permanent access.</li>
+    </ul>
+ 
+    <h3>Payment</h3>
+    <p>All payments are processed by <a href="https://stripe.com" target="_blank" rel="noopener">Stripe</a>. We do not store your full credit card details. Prices are listed in EUR and are inclusive of applicable taxes where required.</p>
+ 
+    <h3>Refunds</h3>
+    <p>You may request a full refund within <strong>14 days of purchase</strong> by emailing <a href="mailto:trypickr@gmail.com">trypickr@gmail.com</a>. After 14 days, all sales are final.</p>
+ 
+    <h3>Cancellation</h3>
+    <p>You can cancel your monthly subscription at any time. Cancellation takes effect at the end of your current billing period. Lifetime purchases cannot be "cancelled" but can be refunded within the 14-day window.</p>
+ 
+    <h3>Price changes</h3>
+    <p>We may change our prices in the future. If we change the price of an active subscription, we'll give you advance notice via email and you can choose to continue or cancel.</p>
+ 
+    <h2 id="user-content"><span class="num">4.</span>Your content and uploads</h2>
+    <p><strong><em>In short:</em></strong> Your photos stay yours. We process them via AI and don't store them.</p>
+ 
+    <h3>Ownership</h3>
+    <p>You retain all rights to the photos you upload to Pickr. We do not claim ownership.</p>
+ 
+    <h3>How we use your uploads</h3>
+    <p>When you upload an outfit photo, it is sent to our AI service provider (OpenRouter) for analysis. The photo is processed only for the purpose of generating your outfit verdict. We do not store your uploaded photos after the analysis is complete, and we do not use them to train AI models.</p>
+ 
+    <h3>Your responsibility</h3>
+    <p>By uploading content to Pickr, you confirm that:</p>
+    <ul>
+      <li>You own the content or have permission to use it</li>
+      <li>The content does not contain anything illegal, offensive, or violating someone's rights</li>
+      <li>You are not uploading photos of minors without parental consent</li>
+      <li>You are not uploading explicit, harmful, or harassing content</li>
+    </ul>
+ 
+    <h2 id="prohibited"><span class="num">5.</span>Prohibited activities</h2>
+    <p>You agree NOT to:</p>
+    <ul>
+      <li>Use Pickr for any illegal purpose or in violation of any law</li>
+      <li>Upload explicit, violent, hateful, or otherwise harmful content</li>
+      <li>Upload content that violates someone else's intellectual property or privacy</li>
+      <li>Attempt to reverse engineer, copy, or steal Pickr's code or features</li>
+      <li>Use bots, scrapers, or automated tools to interact with our Services</li>
+      <li>Resell, redistribute, or share access to your Pickr Pro account</li>
+      <li>Attempt to bypass paywalls, free pick limits, or other restrictions</li>
+      <li>Harass, abuse, or harm other users or our team</li>
+    </ul>
+    <p>Violating these rules may result in immediate termination of your access without refund.</p>
+ 
+    <h2 id="ai-disclaimer"><span class="num">6.</span>AI advice disclaimer</h2>
+    <p><strong><em>In short:</em></strong> Pickr is for fun. The AI's advice is just that — advice.</p>
+    <p>Pickr's outfit feedback is generated by artificial intelligence. While we work to make it helpful, accurate, and stylish, <strong>AI can and does make mistakes</strong>.</p>
+    <p>You agree that:</p>
+    <ul>
+      <li>Pickr's verdicts and tips are suggestions only — not professional fashion advice</li>
+      <li>You are responsible for your own outfit choices</li>
+      <li>We are not liable for any embarrassment, missed opportunities, fashion disasters, or other consequences resulting from following Pickr's advice</li>
+      <li>The AI may occasionally produce odd, incorrect, or unexpected results</li>
+    </ul>
+    <p>Use your judgment. Trust your gut. Pickr is meant to help, not replace, your style.</p>
+ 
+    <h2 id="ip"><span class="num">7.</span>Intellectual property</h2>
+    <p>Pickr, including its name, logo, design, code, content, and features, is owned by us and protected by copyright, trademark, and other laws. You may not copy, modify, distribute, or create derivative works without our written permission.</p>
+    <p>You retain ownership of any content (like photos) you upload to Pickr.</p>
+ 
+    <h2 id="third-party"><span class="num">8.</span>Third-party services</h2>
+    <p>Pickr uses several third-party services to operate. Your use of Pickr is also subject to their terms:</p>
+    <ul>
+      <li><strong>Stripe</strong> for payment processing — <a href="https://stripe.com/legal" target="_blank" rel="noopener">Stripe's terms</a></li>
+      <li><strong>OpenRouter</strong> for AI image analysis — <a href="https://openrouter.ai/terms" target="_blank" rel="noopener">OpenRouter's terms</a></li>
+      <li><strong>Vercel</strong> for hosting — <a href="https://vercel.com/legal/terms" target="_blank" rel="noopener">Vercel's terms</a></li>
+      <li><strong>Formspree</strong> for email collection — <a href="https://formspree.io/legal/terms-of-service" target="_blank" rel="noopener">Formspree's terms</a></li>
+    </ul>
+    <p>We are not responsible for the actions of these third parties.</p>
+ 
+    <h2 id="termination"><span class="num">9.</span>Termination</h2>
+    <p>You can stop using Pickr at any time. If you have a Pro Monthly subscription, you can cancel through Stripe.</p>
+    <p>We reserve the right to suspend or terminate your access to Pickr at any time, with or without notice, if:</p>
+    <ul>
+      <li>You violate these Terms</li>
+      <li>You engage in fraudulent or illegal activity</li>
+      <li>We are required to do so by law</li>
+      <li>We discontinue Pickr (we'll do our best to give advance notice)</li>
+    </ul>
+    <p>If your account is terminated for violation, you will not be entitled to a refund.</p>
+ 
+    <h2 id="disclaimers"><span class="num">10.</span>Disclaimers and limitation of liability</h2>
+    <p><strong>The Services are provided "as is" and "as available."</strong> We do our best to keep Pickr running and useful, but we don't make any guarantees that:</p>
+    <ul>
+      <li>The Services will always be uninterrupted, secure, or error-free</li>
+      <li>The AI's verdicts will always be accurate or fashion-correct</li>
+      <li>Any specific results will be achieved by using Pickr</li>
+    </ul>
+    <p><strong>To the maximum extent permitted by law</strong>, we are not liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of Pickr, including (but not limited to) lost profits, lost data, embarrassment, or fashion mishaps.</p>
+    <p>Our total liability for any claim relating to Pickr will not exceed the amount you paid us in the 12 months before the claim arose, or €10, whichever is greater.</p>
+    <p>Some jurisdictions do not allow these limitations, so they may not apply to you in full. You always have rights you cannot waive under EU consumer law.</p>
+ 
+    <h2 id="governing-law"><span class="num">11.</span>Governing law</h2>
+    <p>These Terms are governed by the laws of <strong>Spain</strong>, without regard to conflict of law principles. Any disputes will be resolved in the courts of Barcelona, Spain.</p>
+    <p>If you are an EU consumer, you also have rights under the laws of your country of residence that you cannot waive by these Terms.</p>
+ 
+    <h2 id="changes"><span class="num">12.</span>Changes to these terms</h2>
+    <p>We may update these Terms from time to time. The updated version will be marked by a new "Last updated" date at the top. If we make material changes, we'll notify you by email or through the Services.</p>
+    <p>Continuing to use Pickr after changes means you accept the new Terms. If you don't agree, please stop using the Services.</p>
+ 
+    <h2 id="contact"><span class="num">13.</span>Contact us</h2>
+    <p>Questions, concerns, refund requests, or feedback? We'd love to hear from you:</p>
+    <p style="background: var(--cream-deep); padding: 14px 18px; border-radius: 8px; font-size: 14px;">
+      <strong>Pickr</strong><br/>
+      Email: <a href="mailto:trypickr@gmail.com">trypickr@gmail.com</a><br/>
+      Carrer de Pau VI, 76A<br/>
+      Sant Cugat del Vallès, Barcelona 08173<br/>
+      Spain
+    </p>
+ 
+    <div class="footer">
+      <a href="index.html">Home</a>
+      <a href="app.html">App</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+      <a href="mailto:trypickr@gmail.com">Contact</a>
+      <p style="margin-top: 1rem;">© 2026 Pickr. Made with care.</p>
+    </div>
+  </div>
+ 
+</body>
+</html>
+ 
